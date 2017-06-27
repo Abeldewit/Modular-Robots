@@ -73,7 +73,7 @@ public class Box
 		
 		if(!(x > 25) && !(y > 25) && !(z > 25)) {
 			boxInstance.transform.setTranslation((float)this.x, (float)this.y, (float)this.z);
-			if(DEBUG == 3) {System.out.println("Moved box " + ID + " to X: " + this.x + "Y: " + this.y + "Z: " + this.z);}
+			//System.out.println("Moved box " + ID + " to X: " + this.x + " Y: " + this.y + " Z: " + this.z);
 		}
 	}
 	

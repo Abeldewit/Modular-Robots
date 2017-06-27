@@ -32,7 +32,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MainGame extends ApplicationAdapter implements Screen {
     
-    private final int SPEED = 30;
+    private final int SPEED = 100;
     private final Vector3D END = new Vector3D(24,0,24);
     public static final int DEBUG = 0;
     
@@ -110,6 +110,10 @@ public class MainGame extends ApplicationAdapter implements Screen {
 			} else if(StartSign == true) {
 				StartSign = false;
 			}
+		}
+		
+		if(StartSign) {
+			testEngine.runRules();
 		}
 		if(Gdx.input.isKeyJustPressed(Keys.R)) { 
 			if(rotate) {

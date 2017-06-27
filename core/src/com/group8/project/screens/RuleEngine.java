@@ -26,10 +26,10 @@ public class RuleEngine {
 	public Astar pathFinder;
 	private PositionManager reader;
 	private Vector3D END;
-	private Box farthest,closest;
+	
 	private boolean unsolved = true;
 	private int currentPathStep;
-	
+
 	private int frameCounter = 0;
 	private int stepCounter = 0;
 
@@ -52,98 +52,74 @@ public class RuleEngine {
 
 		this.createModules();
 
-		
-	pathFinder = new Astar(25, 25, 25, obstacleMap, moduleMap);
-	//	for(Box i : boxList) {
-	//		System.out.println("id: " + i.getID());
-	//		this.calculatePath(i, END);
-		
-		
+
+		pathFinder = new Astar(25, 25, 25, obstacleMap, moduleMap);
+		//	for(Box i : boxList) {
+		//		System.out.println("id: " + i.getID());
+		//		this.calculatePath(i, END);
+
+
 		//Only calculates the path of the module closest to the goal
 		if(!moduleMap.isEmpty())
 		{
-			
+
 			this.calculatePath(getClosest(), END);
 			//System.out.println(finalPath.get(1).getX() + " " + finalPath.get(1).getY() + " " + finalPath.get(1).getZ());
 		}	
-		}
+	}
 	//moveBoxes(); 
 
-	
+
 	//finds Box closest to the goal
 	public Box getClosest()
 	{
+		Box closest = null;
+
+		double closeDist = Double.MAX_VALUE;
 		
-		
-		for(int i = 0; i< boxList.size(); i++)
-		{
-			if(farthest == null)
-			{
-				closest = boxList.get(i);
-			}
-			if(boxList.get(i).getDist(END) < closest.getDist(END))
-			{
-				closest = boxList.get(i);
-
-
-	//main RuleEngine method that is run every frame
-	/*public void runRules() {
-		//run rules for box that's farthest away
-		//write something that checks 10 runs to change continuous to grid units
-
-		if(frameCounter % 10 == 0) {
-			System.out.println(boxList.get(0).getDist(END));
-			if(boxList.get(0).getDist(END) != 0) {
-				moveOver(boxList.get(0), boxList.get(1));
-				
->>>>>>> origin/master
-		*/
-			}
+		for(Box current : boxList) {
 			
+			double distance = current.getDist(END);
+			
+			if( distance <  closeDist) {
+				
+				closeDist = distance;
+				closest = current;
+			}
 		}
-
 		
 		return closest;
 	}
-	
+
 	//finds Box farthest of the goal
 	public Box getFarthest()
 	{
-		farthest = null;
-	
-		double furthest = 0;
-	for(Box current : boxList) {
-		double distance = current.getDist(END);
-		if( distance > furthest ) {
-			furthest = distance;
-			farthest = current;
+		Box farthest = null;
+
+		double furthest = Double.MIN_VALUE;
+		//System.out.println(boxList);
+		for(Box current : boxList) {
+			
+			double distance = current.getDist(END);
+			
+			if( distance > furthest ) {
+				
+				furthest = distance;
+				farthest = current;
 			}
 		}
-	
+		
 		return farthest;
 	}
-	//returns current pathStep's location
-	public Vector3D getCurrentPathStep()
-	{
-		BlockNode temp = finalPath.get(currentPathStep);
-		Vector3D pathStep = new Vector3D(temp.getX(), temp.getY(), temp.getZ());	
-		if(currentPathStep < finalPath.size() -1)
-		{
-			currentPathStep++;
-		}
-				return pathStep;
-	}
+	
 
 	//main RuleEngine method that is run every frame
 	public void runRules() 
 	{
+
+		System.out.println(frameCounter);
+		moveBoxes(frameCounter);
 		
-		
-		if(Gdx.input.isKeyJustPressed(Keys.SPACE))
-		{
-			
-			moveBoxes();
-		}
 		//checkGravity();
 
 
@@ -173,7 +149,7 @@ public class RuleEngine {
 
 
 	//methods
-	
+
 	public void checkGravity() {
 		grav = new Gravity(boxList, obstacleList);
 		for (Box current : grav.getList()) {
@@ -184,26 +160,26 @@ public class RuleEngine {
 
 	public ArrayList<Vector3D> calculatePath(Box current, Vector3D end) {
 
-
+		//System.out.println(current);
 		//get coordinates from the box
 		Vector3D boxCords = new Vector3D(current.getX(), current.getY(), current.getZ());
 		ArrayList<Vector3D> VectorPath = new ArrayList<Vector3D>();
 		//run the Astar from the coordinates of the box to the end
-		final long start = System.nanoTime();
+		final long start = System.currentTimeMillis();
 		if(obstacleMap.isEmpty() &&  moduleMap.isEmpty()) 	pathFinder.setup3();
 		if(!obstacleMap.isEmpty() || !moduleMap.isEmpty()) 	pathFinder.setup2(obstacleMap, moduleMap, boxCords);
 		pathFinder.solve(boxCords, end);
 
-		final long finish = System.nanoTime();
+		final long finish = System.currentTimeMillis();
 
-		System.out.println("Took: " + ((finish - start) / 1000000) + "ms");
+		System.out.println("Took: " + (finish - start) + "ms");
 
 
 
 
 		//create a new list with the vector changes that have to happen per step
 		List<BlockNode> path = pathFinder.getPath();
-		if(current.getX() == closest.getX() && current.getY() == closest.getY() && current.getZ() == closest.getZ())
+		if(current.getX() == getClosest().getX() && current.getY() == getClosest().getY() && current.getZ() == getClosest().getZ())
 		{
 			finalPath = path;
 		}
@@ -216,48 +192,51 @@ public class RuleEngine {
 			VectorPath.add(change);
 			tmp = step;
 		}
-		
-		System.out.println(VectorPath);	
+
+		//System.out.println("FinalPath: " + finalPath);
+		System.out.println("VectorPath: " + VectorPath);	
 		return VectorPath;
 
-	
+
 	}
-	
-	public void moveBoxes()
+
+	public void moveBoxes(int frame)
 	{	
-		while(unsolved == true)
+		if(unsolved == true)
 		{
-			farthest = getFarthest();
+			Box farthest = getFarthest();
 			ArrayList<Vector3D> path = calculatePath(farthest, getCurrentPathStep());
-			
-			for(int i = 0; i < path.size(); i++)
-			{
-				Vector3D temp = path.get(i);
-				System.out.println("Vector: " + temp);
+
+				if(frame < path.size()) {
+				Vector3D temp = path.get(frame);
+				System.out.println("Move boxes uses vector: " + temp + " to move box " + farthest.getID());
 				moveBox(farthest, temp);
-			}
+				}
+			
 		}
 	}
-	public void followPath(Box box, int step) {
-
-		ArrayList<Vector3D> boxPath = box.getPath();
-		ArrayList<Vector3D> continuousPath = new ArrayList<Vector3D>();
-		Vector3D scaling = new Vector3D(0.1, 0.1, 0.1);
-		for(int i = 0; i < boxPath.size(); i++) {
-			for(int j = 0; j < 10; j++) {
-				continuousPath.add(boxPath.get(i).multiply(scaling));
+	
+	//returns current pathStep's location
+		public Vector3D getCurrentPathStep()
+		{
+			
+			
+			BlockNode temp = finalPath.get(currentPathStep);
+			Vector3D pathStep = new Vector3D(temp.getX(), temp.getY(), temp.getZ());
+			System.out.println("pathStep: " + pathStep );
+			if(currentPathStep < finalPath.size() -1)
+			{
+				currentPathStep ++;
 			}
+			
+			return pathStep;
 		}
-
-		if(!(step > continuousPath.size() - 1)) {
-			moveBox(box, continuousPath.get(step));
-		}
-	}
+	
 	public void moveBox(Box current, Vector3D translation) {
 
 
 		current.move(translation);
-		
+
 		checkAttachment(current);
 		instanceList.add(current.getID(), current.getInstance());
 	}
@@ -269,7 +248,7 @@ public class RuleEngine {
 		double currentX = current.getX();
 		double currentY = current.getY();
 		double currentZ = current.getZ();
-		
+
 		for(Box box : boxList) {
 			if(( Math.abs(currentX - box.getX()) + Math.abs(currentY - box.getY()) + Math.abs(currentZ - box.getZ()) ) == 1) {
 				current.setAttached(box);
@@ -285,7 +264,7 @@ public class RuleEngine {
 			return false; 
 		}
 	}
-	/*public ArrayList<Box> attachmentOrder(Box box) {
+	public ArrayList<Box> attachmentOrder(Box box) {
 		ArrayList<Box> OrderedTrain = new ArrayList<Box>();
 
 		if(!box.getAttached().isEmpty()) {
@@ -305,7 +284,7 @@ public class RuleEngine {
 		}
 
 		return OrderedTrain;
-
+	
 	}
 
 	public void moveOver(Box box1, Box box2) {
@@ -324,7 +303,7 @@ public class RuleEngine {
 			}
 		}
 
-		
+
 		if(box1.getDist(END) > box2.getDist(END) && connected && box1.getY() == box2.getY()) {
 			System.out.println("Step 1");
 			moveBox(box1, new Vector3D(0.0,1.0,0.0));
@@ -363,7 +342,5 @@ public class RuleEngine {
 		box2.resetAttached();
 
 	}
-
-*/
 
 }
