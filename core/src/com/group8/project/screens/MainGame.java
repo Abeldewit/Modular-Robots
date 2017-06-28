@@ -123,6 +123,10 @@ public class MainGame extends ApplicationAdapter implements Screen {
 			}
 		}
 		
+		if(Gdx.input.isKeyPressed(Keys.DOWN)) {
+			testEngine.runRules();
+		}
+		
 
 
 		if((System.currentTimeMillis() - savedTime) > SPEED && StartSign) {

@@ -120,6 +120,9 @@ public class Box
 	public boolean getMoved() {
 		return moved;
 	}
+	public Vector3D getVector() {
+		return new Vector3D(x,y,z);
+	}
 	
 	private double x,y,z;
 	private ArrayList<Box> attachList = new ArrayList<Box>();

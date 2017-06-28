@@ -50,7 +50,8 @@ public class Astar {
 	
 	public void setup2(Map<Integer, Vector3D> obstacles, Map<Integer, Vector3D> modules, Vector3D start)
 	{
-		
+		closedSet.clear();
+		path.clear();
 		for(int i = 0; i < grid.length; i++) {
 			for(int j = 0; j < grid[0].length; j++) {
 				for(int k = 0; k < grid[0][0].length; k++) {
@@ -66,7 +67,7 @@ public class Astar {
 				if(obstacle != null)
 				{
 					grid[(int)obstacle.x][(int)obstacle.y][(int)obstacle.z].setObstacle(true);
-				//	if(DEBUG == 1){System.out.println("Obstacle at " + obstacle + " is set " + grid[(int)obstacle.x][(int)obstacle.y][(int)obstacle.z].getObstacle());}
+					System.out.println("Obstacle at " + obstacle + " is set " + grid[(int)obstacle.x][(int)obstacle.y][(int)obstacle.z].getObstacle());
 				}
 			}
 		}
@@ -75,13 +76,14 @@ public class Astar {
 		{
 			for(Map.Entry<Integer, Vector3D> entry: modules.entrySet())
 			{
+				//System.out.println("working on " + entry.getValue());
 				Vector3D module = entry.getValue();
 				if(module != null)
 				{
-					if(module.x != start.x || module.y != start.y || module.z!= start.z)
-					{
+					
+						System.out.println("Set module: " + module.toString() + " to obstacle");
 						grid[(int)module.x][(int)module.y][(int)module.z].setObstacle(true);
-					}
+					
 				}
 			
 			}
@@ -90,6 +92,8 @@ public class Astar {
 	
 	public void setup3()
 	{
+		closedSet.clear();
+		path.clear();
 		for(int i = 0; i < grid.length; i++) {
 			for(int j = 0; j < grid[0].length; j++) {
 				for(int k = 0; k < grid[0][0].length; k++) {
@@ -101,10 +105,17 @@ public class Astar {
 
 	public void solve(Vector3D startVector, Vector3D endVector) {
 		
-		start = grid[(int)startVector.x][(int)startVector.y][(int)startVector.z];
-		end = grid[(int)endVector.x][(int)endVector.y][(int)endVector.z];
-		openSet.add(start);
+		System.out.println("run solve");
 		
+		start = grid[(int)startVector.x][(int)startVector.y][(int)startVector.z];
+		start.setObstacle(false);
+		end = grid[(int)endVector.x][(int)endVector.y][(int)endVector.z];
+		System.out.println("Running Astar Start " + start.getX() + " " + start.getY() + " " + start.getZ());
+		System.out.println("Running Astar End: " + end.getX() + " " + end.getY() + " " + end.getZ());
+		
+		//System.out.println("Closed size:" + closedSet.size());
+		openSet.add(start);
+		//System.out.println("Open size:" + openSet.size());
 		while(!openSet.isEmpty()) {
 			//there is still an option to find the path
 
@@ -129,11 +140,11 @@ public class Astar {
 					temp = temp.getPrev();
 				}
 
-				if(DEBUG == 1) {
+				
 					for(int i = path.size() -1; i >= 0; i--) {
 						//System.out.println(path.get(i).getX() + "  " + path.get(i).getY() + "  " + path.get(i).getZ());
 					}
-				}
+				
 
 				
 				
@@ -168,6 +179,9 @@ public class Astar {
 		if(openSet.isEmpty() && path.get(0) != end) {
 			System.out.println("There is no possible path!");
 		}
+		
+		
+		
 	}
 
 	public List<BlockNode> getPath() {
