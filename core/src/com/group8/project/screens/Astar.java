@@ -42,8 +42,7 @@ public class Astar {
 				}
 			}
 		}
-		
-	
+		System.out.println(grid.length);
 
 	}
 	
@@ -179,7 +178,8 @@ public class Astar {
 		if(openSet.isEmpty() && path.get(0) != end) {
 			System.out.println("There is no possible path!");
 		}
-		
+		openSet.clear();
+		closedSet.clear();
 		
 		
 	}

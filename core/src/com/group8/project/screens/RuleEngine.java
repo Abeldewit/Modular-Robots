@@ -29,12 +29,15 @@ public class RuleEngine {
 	
 	private boolean unsolved = true;
 	private int currentPathStep = 0;
-	private Vector3D realStep;
+
 	private ArrayList<Vector3D> smallPath = new ArrayList<Vector3D>();
 	private Box current;
+	ArrayList<Vector3D> closePath = new ArrayList<Vector3D>();
 
 	private int frameCounter = 0;
 	private int stepCounter = 0;
+	private int pathCounter = 0;
+	private int pathIterator = 0;
 
 	public Gravity grav;
 
@@ -57,7 +60,7 @@ public class RuleEngine {
 
 
 		pathFinder = new Astar(25, 25, 25, obstacleMap, moduleMap);
-		Box closest = getClosest();
+		
 		//Vector3D boxCords = new Vector3D(closest.getX(), closest.getY(), closest.getZ());
 		//pathFinder.setup2(obstacleMap, moduleMap, boxCords);
 		//	for(Box i : boxList) {
@@ -66,12 +69,11 @@ public class RuleEngine {
 
 
 		//Only calculates the path of the module closest to the goal
-		if(!moduleMap.isEmpty())
-		{
-
-			this.calculateFinalPath(closest, END);
-			//System.out.println(finalPath.get(1).getX() + " " + finalPath.get(1).getY() + " " + finalPath.get(1).getZ());
-		}	
+		//calculate path for closest
+				Box closest = getClosest();
+				System.out.println("Closest: "+closest.getID());
+				closePath = calculatePath(closest, END);
+				
 	}
 	//moveBoxes(); 
 
@@ -236,30 +238,30 @@ public class RuleEngine {
 			
 			
 			
-			
-			if(frame == 0 || frame > smallPath.size() -1) {
+			System.out.println("Smallpath size:" + smallPath.size());
+			if(frame == 0 || frame > smallPath.size()-1) {
+				pathCounter++;
+				smallPath.clear();
 				current = getFarthest();
 				System.out.println("Working on: " + current.getID());
-				smallPath = getShortPath();
+				smallPath = getShortPath(pathCounter);
+				pathIterator = 0;
 				System.out.println("smallPath:" + smallPath);
+			} else {
+			System.out.println("Moving " + current.getID() + " with " + smallPath.get(pathIterator));
+			moveBox(current, smallPath.get(pathIterator));
 			}
-			//System.out.println("Moving " + current.getID() + " with " + smallPath.get(frame));
-			moveBox(current, smallPath.get(frame));
 			
 		}
+		pathIterator++;
 	}
 	
-	public ArrayList<Vector3D> getShortPath() {
-		//calculate path for closest
-		Box closest = getClosest();
-		System.out.println("Closest: "+closest.getID());
-		ArrayList<Vector3D> closePath = calculatePath(closest, END);
-		System.out.println("closePath size: " + closePath.size());
-		Vector3D closeNextStep = closePath.get(0);
-		realStep = new Vector3D(closest.getX()+closeNextStep.x, closest.getY()+closeNextStep.y, closest.getZ()+closeNextStep.z);
-		System.out.println("realStep: " + realStep);
-		//calculate path for furthest to first step of closest
+	public ArrayList<Vector3D> getShortPath(int counter) {
 		
+		//calculate path for furthest to first step of closest
+		Box closest = getClosest();
+		Vector3D closeNextStep = closePath.get(counter);
+		Vector3D realStep = new Vector3D(closest.getX()+closeNextStep.x, closest.getY()+closeNextStep.y, closest.getZ()+closeNextStep.z);
 		Box farthest = getFarthest();
 		System.out.println("Farthest: "+farthest.getID());
 		ArrayList<Vector3D> farPath = calculatePath(farthest, realStep);
