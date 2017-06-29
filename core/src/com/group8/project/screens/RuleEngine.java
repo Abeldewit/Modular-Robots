@@ -195,7 +195,7 @@ public class RuleEngine {
 		if(obstacleMap.isEmpty() &&  moduleMap.isEmpty()) 	pathFinder.setup3();
 		//HIER TOEVOEGEN WAT IK HAD VERWIJDERD
 		if(!newModuleMap.isEmpty()) {pathFinder.setup2(obstacleMap, newModuleMap, boxCords);}
-		pathFinder.solve(boxCords, end);
+		pathFinder.solve(boxCords, end); 
 
 		final long finish = System.currentTimeMillis();
 
