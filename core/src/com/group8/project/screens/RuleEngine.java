@@ -212,7 +212,7 @@ public class RuleEngine {
 			System.out.println("Next cord: " + nextCord);
 			boxPath = getShortPath(nextCord);
 			
-			if(boxPath.get(0).x == 0 && boxPath.get(0).y == 0 && boxPath.get(0).z == 0) { boxPath.remove(0);}
+		boxPath.remove(0);
 			current = getFarthest();
 			System.out.println("small Trail: " + boxPath);
 		} else {
