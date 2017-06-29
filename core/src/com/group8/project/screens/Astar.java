@@ -100,17 +100,17 @@ public class Astar {
 	}
 
 	public void solve(Vector3D startVector, Vector3D endVector) {
-		System.out.println("run solve");
+		
 
 		start = grid[(int)startVector.x][(int)startVector.y][(int)startVector.z];
 		start.setObstacle(false);
 		end = grid[(int)endVector.x][(int)endVector.y][(int)endVector.z];
+		System.out.println("--------- ASTAR ---------");
 		System.out.println("Running Astar Start " + start.getX() + " " + start.getY() + " " + start.getZ());
 		System.out.println("Running Astar End: " + end.getX() + " " + end.getY() + " " + end.getZ());
+		System.out.println("");
 		closedSet.add(start);
-		//System.out.println("Closed size:" + closedSet.size());
-		//openSet.add(start);
-		//System.out.println("Open size:" + openSet.size());
+		
 		BlockNode current = null;
 		PriorityQueue<BlockNode> queue = new PriorityQueue<BlockNode>(new Comparator<BlockNode>() {
 			@Override
@@ -161,6 +161,7 @@ public class Astar {
 		}
 		if(path.size()==0) {
 			System.out.println("There is no possible path!");
+			
 		}
 		BlockNode temp = current;
 		path.add(current);

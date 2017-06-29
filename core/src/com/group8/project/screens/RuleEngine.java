@@ -250,6 +250,7 @@ public class RuleEngine {
 			} else {
 			System.out.println("Moving " + current.getID() + " with " + smallPath.get(pathIterator));
 			moveBox(current, smallPath.get(pathIterator));
+			System.out.println(pathIterator);
 			}
 			
 		}
