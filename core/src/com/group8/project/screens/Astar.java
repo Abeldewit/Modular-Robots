@@ -107,6 +107,7 @@ public class Astar {
 		clearVars();
 		start = grid[(int)startVector.x][(int)startVector.y][(int)startVector.z];
 		start.setObstacle(false);
+		System.out.println("Reset " + startVector + " to module");
 		end = grid[(int)endVector.x][(int)endVector.y][(int)endVector.z];
 		
 		System.out.println("Running Astar Start " + start.getX() + " " + start.getY() + " " + start.getZ());
@@ -136,6 +137,7 @@ public class Astar {
 				BlockNode temp = current;
 				path.add(current);
 				while(temp.getPrev() != null) {
+					
 					path.add(temp.getPrev());
 					temp = temp.getPrev();
 				}
@@ -172,6 +174,15 @@ public class Astar {
 	}
 	
 	public void clearVars() {
+		
+		for(int i = 0; i < grid.length; i++) {
+			for(int j = 0; j < grid[0].length; j++) {
+				for(int k = 0; k < grid[0][0].length; k++) {
+					grid[i][j][k].setPrevious(null);
+				}
+			}
+		}
+		
 		openSet.clear();
 		closedSet.clear();
 		path.clear();

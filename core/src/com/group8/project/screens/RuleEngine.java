@@ -50,6 +50,8 @@ public class RuleEngine {
 		moduleMap = reader.getModules();
 		this.createModules();
 		pathFinder = new Astar(25, 25, 25, obstacleMap, moduleMap);
+		getFinalPath();
+		System.out.println("Trail: " + closePath);
 
 	}
 	//finds Box closest to the goal
@@ -100,17 +102,10 @@ public class RuleEngine {
 	{
 
 		if(frameCounter % 10 == 0) {
-			System.out.println(stepCounter);
+			System.out.println("Step: "+stepCounter);
 			moveBoxes(stepCounter);
 			stepCounter++;
-
-			/*
-		pathFinder.solve(new Vector3D(0,0,0), new Vector3D(14,0,0));
-
-		System.out.println(pathFinder.getPath());
-		pathFinder.solve(new Vector3D(0,0,0), new Vector3D(24,0,24));
-		System.out.println(pathFinder.getPath());
-			 */
+			System.out.println("------------------------- END OF MOVEBOXES -------------------------");
 		}
 
 
@@ -205,23 +200,35 @@ public class RuleEngine {
 
 	public void moveBoxes(int frame)
 	{
-		
+		/*check whether small path is completed, then calculate a new main trail for the closest
+		 * and a small path for the farthest
+		 */
+		if(frame == 0 || boxPath.isEmpty()) {
+			System.out.println("BoxPath empty: "+boxPath.isEmpty());
+			
+			Box closest = getClosest();
+			if(closePath.get(0).x == 0 && closePath.get(0).y == 0 && closePath.get(0).z == 0) { closePath.remove(0);}
+			Vector3D nextCord = new Vector3D(closePath.get(0).x + closest.getX(), closePath.get(0).y + closest.getY(), closePath.get(0).z + closest.getZ());
+			System.out.println("Next cord: " + nextCord);
+			boxPath = getShortPath(nextCord);
+			
+			if(boxPath.get(0).x == 0 && boxPath.get(0).y == 0 && boxPath.get(0).z == 0) { boxPath.remove(0);}
+			current = getFarthest();
+			System.out.println("small Trail: " + boxPath);
+		} else {
+			System.out.println("Translating: " + boxPath.get(0));
+			moveBox(current, boxPath.get(0));
+			boxPath.remove(0);
+		}
 	}
 	
 	
 
-	public ArrayList<Vector3D> getShortPath(int counter) {
-
-		//calculate path for farthest to first step of closest
-		Box closest = getClosest();
-		Vector3D closeNextStep = closePath.get(counter);
-		System.out.println(closeNextStep);
-		Vector3D realStep = new Vector3D(closest.getX()+closeNextStep.x, closest.getY()+closeNextStep.y, closest.getZ()+closeNextStep.z);
+	public ArrayList<Vector3D> getShortPath(Vector3D smallEnd) {
+		System.out.println("Running shortpath method");
 		Box farthest = getFarthest();
-		//System.out.println("Farthest: "+farthest.getID());
-		ArrayList<Vector3D> farPath = calculatePath(farthest, realStep);
-		//System.out.println("farPath size: " + farPath.size());
-		System.out.println("Current path: " + farPath);
+		ArrayList<Vector3D> farPath = calculatePath(farthest, smallEnd);
+
 		return farPath;
 	}
 
@@ -229,7 +236,6 @@ public class RuleEngine {
 		Box closest = getClosest();
 		System.out.println("Closest: "+closest.getID());
 		closePath = calculatePath(closest, END);
-		System.out.println("Main trail: " + closePath);
 	}
 	
 	
@@ -362,8 +368,7 @@ public class RuleEngine {
 
 	public ArrayList<Vector3D> calculateFinalPath(Box current, Vector3D end) {
 
-		//System.out.println(current);
-		//get coordinates from the box
+		System.out.println("Running CalculateFinalPath now");
 		Vector3D boxCords = new Vector3D(current.getX(), current.getY(), current.getZ());
 		ArrayList<Vector3D> VectorPath = new ArrayList<Vector3D>();
 		HashMap<Integer, Vector3D> newModuleMap = new HashMap<Integer, Vector3D>();
