@@ -73,18 +73,19 @@ public boolean getObstacle() {
 		int intX = (int) x;
 		int intY = (int) y;
 		int intZ = (int) z;
-
-		if(x < xLength -1) {
-			this.neighbors.add(grid[intX+1][intY][intZ]);
-		}
-		if(x > 0) {
-			this.neighbors.add(grid[intX-1][intY][intZ]);
-		}
+	
+		
 		if(y < yLength -1) {
 			this.neighbors.add(grid[intX][intY+1][intZ]);
 		}
 		if(y > 0) {
 			this.neighbors.add(grid[intX][intY-1][intZ]);
+		}
+		if(x < xLength -1) {
+			this.neighbors.add(grid[intX+1][intY][intZ]);
+		}
+		if(x > 0) {
+			this.neighbors.add(grid[intX-1][intY][intZ]);
 		}
 		if(z < zLength -1) {
 			this.neighbors.add(grid[intX][intY][intZ+1]);
@@ -92,8 +93,11 @@ public boolean getObstacle() {
 		if(z > 0) {
 			this.neighbors.add(grid[intX][intY][intZ-1]);
 		}
+		
 
 	}
+	
+	 
 
 	public void setF(float f) {
 		this.f = f;

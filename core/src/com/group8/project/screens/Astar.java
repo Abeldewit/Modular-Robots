@@ -32,17 +32,20 @@ public class Astar {
 				}
 			}
 		}
-
-
-
+		
 		for(int i = 0; i < grid.length; i++) {
 			for(int j = 0; j < grid[0].length; j++) {
 				for(int k = 0; k < grid[0][0].length; k++) {
+					
 					grid[i][j][k].addNeighbors(grid);
 					
 				}
 			}
 		}
+	
+
+
+		
 		System.out.println(grid.length);
 
 	}
@@ -84,10 +87,11 @@ public class Astar {
 						grid[(int)module.x][(int)module.y][(int)module.z].setObstacle(true);
 					
 				}
-			
+			}
 			}
 		}
-	}
+		
+		
 	
 	public void setup3()
 	{

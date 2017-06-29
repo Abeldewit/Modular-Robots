@@ -44,7 +44,7 @@ public class RuleEngine {
 
 	public RuleEngine(Vector3D END) {
 		this.END = END;
-		
+
 		reader = new PositionManager();
 		obstacleMap = reader.getObstacles();
 		moduleMap = reader.getModules();
@@ -203,26 +203,50 @@ public class RuleEngine {
 		/*check whether small path is completed, then calculate a new main trail for the closest
 		 * and a small path for the farthest
 		 */
+
 		if(frame == 0 || boxPath.isEmpty()) {
-			System.out.println("BoxPath empty: "+boxPath.isEmpty());
-			
-			Box closest = getClosest();
-			if(closePath.get(0).x == 0 && closePath.get(0).y == 0 && closePath.get(0).z == 0) { closePath.remove(0);}
-			Vector3D nextCord = new Vector3D(closePath.get(0).x + closest.getX(), closePath.get(0).y + closest.getY(), closePath.get(0).z + closest.getZ());
-			System.out.println("Next cord: " + nextCord);
-			boxPath = getShortPath(nextCord);
-			
-		boxPath.remove(0);
-			current = getFarthest();
-			System.out.println("small Trail: " + boxPath);
-		} else {
-			System.out.println("Translating: " + boxPath.get(0));
+			if(!closePath.isEmpty()) {
+				System.out.println("BoxPath empty: "+boxPath.isEmpty());
+
+				Box closest = getClosest();
+
+				if(closePath.get(0).x == 0 && closePath.get(0).y == 0 && closePath.get(0).z == 0) { closePath.remove(0);}
+				System.out.println("Next on Trail: " + closePath.get(0));
+				System.out.println("Closest cordinates: " + closest.getVector());
+				Vector3D nextCord = new Vector3D(closePath.get(0).x + closest.getX(), closePath.get(0).y + closest.getY(), closePath.get(0).z + closest.getZ());
+				System.out.println("Next cord: " + nextCord);
+
+				boxPath = getShortPath(nextCord);
+
+				boxPath.remove(0);
+
+				current = getFarthest();
+				System.out.println("small Trail: " + boxPath);
+				closePath.remove(0);
+			}
+		} 
+		
+		else {
+			System.out.println("Translating: " + current.getID() + " to " + boxPath.get(0));
 			moveBox(current, boxPath.get(0));
 			boxPath.remove(0);
-		}
+			
+			
+			if(boxPath.isEmpty())
+			{
+				if(checkAttachment(current) && current.getY()>0)
+				{
+					moveBox(current, closePath.get(0));
+					closePath.remove(0);
+				}
+			}
+			
+			
+		} 
+
 	}
-	
-	
+
+
 
 	public ArrayList<Vector3D> getShortPath(Vector3D smallEnd) {
 		System.out.println("Running shortpath method");
@@ -236,23 +260,17 @@ public class RuleEngine {
 		Box closest = getClosest();
 		System.out.println("Closest: "+closest.getID());
 		closePath = calculatePath(closest, END);
+		closePath.remove(0);
 	}
-	
-	
+
+
 	//returns current pathStep's location
-	public Vector3D getCurrentPathStep()
+	public void getCurrentPathStep(Box current)
 	{
 
+		
 
-		BlockNode temp = finalPath.get(currentPathStep);
-		Vector3D pathStep = new Vector3D(temp.getX(), temp.getY(), temp.getZ());
-		System.out.println("pathStep: " + pathStep );
-		if(currentPathStep < finalPath.size() -1)
-		{
-			currentPathStep ++;
-		}
-
-		return pathStep;
+		
 	}
 
 	public void moveBox(Box current, Vector3D translation) {
