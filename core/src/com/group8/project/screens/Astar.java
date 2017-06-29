@@ -1,10 +1,13 @@
 package com.group8.project.screens;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
+import static com.group8.project.screens.MainGame.DEBUG;
+
+import com.badlogic.gdx.math.Vector3;
+import com.group8.project.screens.Vector3D;
 
 public class Astar {
 
@@ -25,6 +28,7 @@ public class Astar {
 			for(int j = 0; j < grid[0].length; j++) {
 				for(int k = 0; k < grid[0][0].length; k++) {
 					grid[i][j][k] = new BlockNode(i,j,k);
+					
 				}
 			}
 		}
@@ -46,8 +50,7 @@ public class Astar {
 	
 	public void setup2(Map<Integer, Vector3D> obstacles, Map<Integer, Vector3D> modules, Vector3D start)
 	{
-		closedSet.clear();
-		path.clear();
+		
 		for(int i = 0; i < grid.length; i++) {
 			for(int j = 0; j < grid[0].length; j++) {
 				for(int k = 0; k < grid[0][0].length; k++) {
@@ -88,8 +91,7 @@ public class Astar {
 	
 	public void setup3()
 	{
-		closedSet.clear();
-		path.clear();
+		
 		for(int i = 0; i < grid.length; i++) {
 			for(int j = 0; j < grid[0].length; j++) {
 				for(int k = 0; k < grid[0][0].length; k++) {
@@ -101,96 +103,78 @@ public class Astar {
 
 	public void solve(Vector3D startVector, Vector3D endVector) {
 		
-
+		
+		clearVars();
 		start = grid[(int)startVector.x][(int)startVector.y][(int)startVector.z];
 		start.setObstacle(false);
 		end = grid[(int)endVector.x][(int)endVector.y][(int)endVector.z];
-		System.out.println("--------- ASTAR ---------");
+		
 		System.out.println("Running Astar Start " + start.getX() + " " + start.getY() + " " + start.getZ());
 		System.out.println("Running Astar End: " + end.getX() + " " + end.getY() + " " + end.getZ());
-		System.out.println("");
-		closedSet.add(start);
 		
-		BlockNode current = null;
-		PriorityQueue<BlockNode> queue = new PriorityQueue<BlockNode>(new Comparator<BlockNode>() {
-			@Override
-			public int compare(BlockNode nodeA, BlockNode nodeB) {
-				if (nodeA.getF() < nodeB.getF())
-					return -1;
-				else if (nodeA.getF() > nodeB.getF())
-					return 1;
-				else
-					return 0;
-			}
-		});
-		queue.add(start);
-		while(!queue.isEmpty()) {
+		
+		openSet.add(start);
+		
+		while(!openSet.isEmpty()) {
 			//there is still an option to find the path
-			current = queue.poll();
-			closedSet.add(current);
-			if (current.getPrev() != null && current.getPrev().getPrev()!= null) {
-				if (current.vectorized().equals(current.getPrev().getPrev().vectorized())) {
-					System.out.println("bla");
+
+			//find the node with the lowest 'f' score
+			int winIndex = 0;
+			for(int i = 0; i < openSet.size(); i++) {
+				if(openSet.get(i).getF() < openSet.get(winIndex).getF()) {
+					winIndex = i;
 				}
 			}
 
-			//if the lowest 'f' score node is the end, we're done
-			//path is found, now output it
-			if(current == end) break;
+			BlockNode current = openSet.get(winIndex);
 
-			//confirm the current node has been checked btw
+			//if the lowest 'f' score node is the end, we're done
+			if(current == end) {
+
+				//path is found, now output it
+				System.out.println("Path is found!");
+				BlockNode temp = current;
+				path.add(current);
+				while(temp.getPrev() != null) {
+					path.add(temp.getPrev());
+					temp = temp.getPrev();
+				}
+			}
+
+			//confirm the current node has been checked
+			openSet.remove(current);
+			closedSet.add(current);
 
 			//get the neighbors and loop through them
 			for(BlockNode neighbor : current.getNeighbors()) {
-				if (closedSet.contains(neighbor)) continue;
-				if(!neighbor.getObstacle()) {
+
+				if(!closedSet.contains(neighbor) && neighbor.getObstacle() != true) {
 					float tempG = current.getG() + 1;
-					if(queue.contains(neighbor)) {
-						if(tempG > neighbor.getG()) {
-							continue;
-							//neighbor.setG(tempG);
-						} 
+
+					if(openSet.contains(neighbor)) {
+						if(tempG < neighbor.getG()) {
+							neighbor.setG(tempG);
+						}
 					} else {
-						queue.add(neighbor);
+						neighbor.setG(tempG);
+						openSet.add(neighbor);
 					}
-					neighbor.setG(tempG);
+
 					neighbor.calcH(end);
 					neighbor.setPrevious(current);
 				}
 			}
 		}
-		if(path.size()==0) {
-			System.out.println("There is no possible path!");
-			
-		}
-		BlockNode temp = current;
-		path.add(current);
-		while(temp.getPrev() != null) {
-			System.out.println(temp.vectorized().toString());
-			path.add(temp.getPrev()); 
-			temp = temp.getPrev();
-		}
-			for(int i = path.size() -1; i >= 0; i--) {
-				//System.out.println(path.get(i).getX() + "  " + path.get(i).getY() + "  " + path.get(i).getZ());
-			}
-			for (int i = 0; i < grid.length; i++) {
-				for (int j = 0; j < grid[0].length; j++) {
-					for (int k = 0; k < grid[0][0].length; k++) {
-						grid[i][j][k].clear(); 
-					}
-				}
-			}
-		clear();
 		
+		if(openSet.isEmpty() && path.get(0) != end) {
+			System.out.println("There is no possible path!");
+		}
 	}
 	
-	public void clear() {
+	public void clearVars() {
 		openSet.clear();
 		closedSet.clear();
-		start = null;
-		end = null;
-	
-		//add more
+		path.clear();
 	}
 
 	public List<BlockNode> getPath() {
