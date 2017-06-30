@@ -49,11 +49,26 @@ public class RuleEngine {
 		obstacleMap = reader.getObstacles();
 		moduleMap = reader.getModules();
 		this.createModules();
+
+
+
+
+
 		pathFinder = new Astar(25, 25, 25, obstacleMap, moduleMap);
-		getFinalPath();
-		System.out.println("Trail: " + closePath);
 
 	}
+	/*public boolean allOnGround()
+	{
+		for(Box check : boxList) {
+
+			if(!grav.checkUnder(check)) return false;
+		}
+		for(Box check : obstacleList) {
+
+			if(!grav.checkUnder(check)) return false;
+		}
+		return true;
+	}*/
 	//finds Box closest to the goal
 	public Box getClosest()
 	{
@@ -100,8 +115,12 @@ public class RuleEngine {
 	//main RuleEngine method that is run every frame
 	public void runRules() 
 	{
+		if(frameCounter == 0) {
 
-		if(frameCounter % 10 == 0) {
+			getFinalPath();
+			System.out.println("Trail: " + closePath);
+
+		} else if(frameCounter % 10 == 0) {
 			System.out.println("Step: "+stepCounter);
 			moveBoxes(stepCounter);
 			stepCounter++;
@@ -110,7 +129,7 @@ public class RuleEngine {
 
 
 
-		//checkGravity();
+
 		//System.out.println("ModuleList: " + moduleMap);
 
 		frameCounter++;
@@ -139,13 +158,6 @@ public class RuleEngine {
 
 
 	//methods
-
-	public void checkGravity() {
-		grav = new Gravity(boxList, obstacleList);
-		for (Box current : grav.getList()) {
-			moveBox(current, new Vector3D(0,-1,0));
-		}
-	}
 
 
 	public ArrayList<Vector3D> calculatePath(Box current, Vector3D end) {
@@ -206,6 +218,7 @@ public class RuleEngine {
 
 		if(frame == 0 || boxPath.isEmpty()) {
 			if(!closePath.isEmpty()) {
+				
 				System.out.println("BoxPath empty: "+boxPath.isEmpty());
 
 				Box closest = getClosest();
@@ -225,23 +238,28 @@ public class RuleEngine {
 				closePath.remove(0);
 			}
 		} 
-		
+
 		else {
 			System.out.println("Translating: " + current.getID() + " to " + boxPath.get(0));
-			moveBox(current, boxPath.get(0));
-			boxPath.remove(0);
-			
-			
+			moveBox(current, boxPath.get(0).multiply(new Vector3D(0.1,0.1,0.1)));
+			if(frame % 10 == 0) {
+				boxPath.remove(0);
+			}
+
+
 			if(boxPath.isEmpty())
 			{
 				if(checkAttachment(current) && current.getY()>0)
 				{
-					moveBox(current, closePath.get(0));
-					closePath.remove(0);
+					moveBox(current, closePath.get(0).multiply(new Vector3D(0.1,0.1,0.1)));
+					if(frame % 10 == 0) {
+						closePath.remove(0);
+					}
 				}
+				current.setXYZ(Math.round(current.getX()), Math.round(current.getY()), Math.round(current.getZ()));
 			}
 			
-			
+				
 		} 
 
 	}
@@ -268,9 +286,9 @@ public class RuleEngine {
 	public void getCurrentPathStep(Box current)
 	{
 
-		
 
-		
+
+
 	}
 
 	public void moveBox(Box current, Vector3D translation) {
