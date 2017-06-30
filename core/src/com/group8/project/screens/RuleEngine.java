@@ -64,7 +64,7 @@ public class RuleEngine {
 		for(Box current : boxList) {
 
 			double distance = current.getDist(END);
-
+			
 			if( distance <  closeDist) {
 
 				closeDist = distance;
@@ -206,7 +206,7 @@ public class RuleEngine {
 
 		if(frame == 0 || boxPath.isEmpty()) {
 			if(!closePath.isEmpty()) {
-				System.out.println("BoxPath empty: "+boxPath.isEmpty());
+				System.out.println("BoxPath empty: " + boxPath.isEmpty());
 
 				Box closest = getClosest();
 
@@ -214,6 +214,18 @@ public class RuleEngine {
 				System.out.println("Next on Trail: " + closePath.get(0));
 				System.out.println("Closest cordinates: " + closest.getVector());
 				Vector3D nextCord = new Vector3D(closePath.get(0).x + closest.getX(), closePath.get(0).y + closest.getY(), closePath.get(0).z + closest.getZ());
+				boolean onTop = false;
+				for(Box box : boxList) {
+					if(nextCord.x == box.getX() && nextCord.z == box.getZ() && nextCord.y > box.getY()) {
+						onTop = true;
+					}
+				}
+				if(onTop) {
+					closePath.remove(0);
+					nextCord = new Vector3D(closePath.get(0).x + nextCord.x, closePath.get(0).y + nextCord.y, closePath.get(0).z + nextCord.z);
+					System.out.println("New nextcord");
+					onTop = false;
+				}
 				System.out.println("Next cord: " + nextCord);
 
 				boxPath = getShortPath(nextCord);
@@ -229,21 +241,43 @@ public class RuleEngine {
 		else {
 			System.out.println("Translating: " + current.getID() + " to " + boxPath.get(0));
 			moveBox(current, boxPath.get(0));
+			
 			boxPath.remove(0);
 			
 			
-			if(boxPath.isEmpty())
-			{
-				if(checkAttachment(current) && current.getY()>0)
-				{
-					moveBox(current, closePath.get(0));
-					closePath.remove(0);
+			
+			
+			
+		}
+		checkGravity(current);
+
+	}
+	
+	public void checkGravity(Box current) {
+		System.out.println("Gravity is checked");
+		boolean fall = false;
+		
+		if(current.getY() > 0) {
+			fall = true;
+			if(checkAttachment(current)) {
+				fall = false;
+			}
+			
+			for(Map.Entry<Integer, Vector3D> entry : obstacleMap.entrySet()) {
+				if(entry.getValue().x == current.getX() && entry.getValue().z == current.getZ() && (current.getY() - entry.getValue().y) == 1 ) {
+					fall = false;
 				}
 			}
 			
-			
-		} 
-
+		}
+		
+		
+		
+		if(fall) {
+			moveBox(current, new Vector3D(0.0, -1.0, 0.0));
+			System.out.println("Gravity did fall to: " + current.getID());
+		}
+		System.out.println(fall);
 	}
 
 
@@ -294,6 +328,12 @@ public class RuleEngine {
 			if(( Math.abs(currentX - box.getX()) + Math.abs(currentY - box.getY()) + Math.abs(currentZ - box.getZ()) ) == 1) {
 				current.setAttached(box);
 			}
+			if( Math.abs(currentX - box.getX()) == 1 && (currentY - box.getY()) == 1) {
+				current.setAttached(box);
+			}
+			if( Math.abs(currentZ - box.getZ()) == 1 && (currentY - box.getY()) == 1) {
+				current.setAttached(box);
+			}
 		}
 
 		if(current.getAttached().isEmpty()) { 
@@ -328,61 +368,7 @@ public class RuleEngine {
 
 	}
 
-	public void moveOver(Box box1, Box box2) {
-		boolean connected = false;
-		if(checkAttachment(box1)) {
-			ArrayList<Box> box1attachment = box1.getAttached();
-
-			if(box1attachment != null) {
-				for(Box neighbor : box1attachment) {
-					if(neighbor == box2) {
-						connected = true;
-					} else {
-						connected = false;
-					}
-				}
-			}
-		}
-
-
-		if(box1.getDist(END) > box2.getDist(END) && connected && box1.getY() == box2.getY()) {
-			System.out.println("Step 1");
-			moveBox(box1, new Vector3D(0.0,1.0,0.0));
-			Vector3D moveTop = new Vector3D(box2.getX() - box1.getX(), 0.0, box2.getZ() - box1.getZ());
-			moveBox(box1, moveTop);
-		} else if(box1.getY() > box2.getY() && connected) {
-			System.out.println("Step 2");
-			Vector3D boxStep = box2.getPath().get(stepCounter);
-			stepCounter++;
-			moveBox(box1, boxStep);
-
-		} else if(box1.getY() > box2.getY() && !connected) {
-			System.out.println("Step 3");
-			moveBox(box1, new Vector3D(0.0,-1.0,0.0));
-		}
-
-		if(box1.getDist(END) < box2.getDist(END) && connected && box2.getY() == box1.getY()) {
-			System.out.println("Step 1");
-			moveBox(box2, new Vector3D(0.0,1.0,0.0));
-			Vector3D moveTop = new Vector3D(box1.getX() - box2.getX(), 0.0, box1.getZ() - box2.getZ());
-			moveBox(box2, moveTop);
-		} else if(box2.getY() > box1.getY() && connected) {
-			System.out.println("Step 2");
-			Vector3D boxStep = box1.getPath().get(stepCounter);
-			stepCounter++;
-			moveBox(box2, boxStep);
-
-		} else if(box2.getY() > box1.getY() && !connected) {
-			System.out.println("Step 3");
-			moveBox(box2, new Vector3D(0.0,-1.0,0.0));
-		}
-
-
-
-		box1.resetAttached();
-		box2.resetAttached();
-
-	}
+	
 
 	public ArrayList<Vector3D> calculateFinalPath(Box current, Vector3D end) {
 
