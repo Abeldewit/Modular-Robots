@@ -78,7 +78,7 @@ public class Box
 	}
 	
 	public double getDist(Vector3D end) {
-		return (Math.abs(x - end.x) + Math.abs(y - end.y) + Math.abs(z - end.z));
+		return (Math.abs(x - end.x) + Math.abs(y - end.y) + Math.abs(z - end.z)) - y;
 	}
 
 	public ModelBuilder getModelBuilder() {

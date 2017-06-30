@@ -172,9 +172,11 @@ public class Astar {
 			}
 		}
 		
+		
 		if(openSet.isEmpty() && path.get(0) != end) {
 			System.out.println("There is no possible path!");
 		}
+		
 	}
 	
 	public void clearVars() {
