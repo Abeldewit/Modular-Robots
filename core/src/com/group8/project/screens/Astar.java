@@ -41,8 +41,8 @@ public class Astar {
 					
 				}
 			}
-		
-	}
+		}
+	
 
 
 		
@@ -87,9 +87,8 @@ public class Astar {
 						grid[(int)module.x][(int)module.y][(int)module.z].setObstacle(true);
 					
 				}
-			
 			}
-		}
+			}
 		}
 		
 		
