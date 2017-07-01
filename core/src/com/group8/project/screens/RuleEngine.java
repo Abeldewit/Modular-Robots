@@ -115,6 +115,7 @@ public class RuleEngine {
 	//main RuleEngine method that is run every frame
 	public void runRules() 
 	{
+		checkGravity();
 		if(frameCounter == 0) {
 
 			getFinalPath();
@@ -290,6 +291,14 @@ public class RuleEngine {
 
 
 	}
+	
+	public void checkGravity()
+	{
+		
+		grav = new Gravity(boxList, obstacleList);
+		for(Box current : grav.getList())
+		grav.checkUnder();
+	}
 
 	public void moveBox(Box current, Vector3D translation) {
 
@@ -361,6 +370,8 @@ public class RuleEngine {
 				}
 			}
 		}
+		
+		
 
 
 		if(box1.getDist(END) > box2.getDist(END) && connected && box1.getY() == box2.getY()) {
